@@ -1,0 +1,76 @@
+---
+title: "NYT Recommender System"
+author: "Enrique Delamonica"
+format: html
+editor: visual
+---
+
+## Could the way articles are recommended to New York Ties readers be improved?
+
+**Introduction**
+
+Everything, always, has the potential to be improved. The same applies to recommender systems. Improving systems requires knowledge about their objectives, how they work , and technical knowledge to find potential improvements.
+
+In what follows, these elements are going to be tackled sequentially. First, the objectives of the systems are analyzed using the scenario design approach. Then, the New York Times recommender system is briefly described based on how they portray it. Finally, a few potential improving options, including some questions for further reflections, are put forward.
+
+Before tackling these issues, it is interesting to note that in 2009 there was an article in the Technology section of the New York Times about recommender systems (Macmanus , “A Guide to Recommender Systems”, Published: January 26, 2009 NHYTs Technology section). In it, four main approaches were described based on a previous article by Iskold. These approaches are: (1) Personalized, based on the past behavior; (2) Social, based on past behavior of similar users (described as collaborative in chapter 9 of Mining Massive Datasets); (3) Item, based on characteristics of what is being recommended such as a movie, a product, a song, etc. (basically what is described as content-based in in chapter 9 of Mining Massive Datasets); and (4) a combination of these approaches.  The recommender system eventually used by the New York Tines is an example of the fourth approach.
+
+**Recommender systems objectives: Scenario design**
+
+Based on the article by Temkin et. al (2004), “Scenario Design: A Disciplined Approach To Customer Experience”, which we discussed during Week 4, the main questions companies should ask to properly manage customer experience are:
+
+1\. Who are the target users?
+
+2\. What are their goals?
+
+3\. How can they be helped to reach those goals?
+
+For the purpose of this assignment, the target users are clear: New York Times readers. However, these readers may have different objectives, for instance they may want to be generally well-informed (about “all the news fit to print”) or they may be focused on a particular topic they are very concerned about (elections or recent best-selling books).
+
+According to the article “Building the Next New York Times Recommendation Engine”, by Spangher, New York TinesAugust 11, 2015, the intention of the recommender system is to find ways that would lead readers to articles they would find interesting and relevant.
+
+Thus, it seems that the recommender system developed by the team at the New York Times is cognizant of the heterogeneity of goals of their readers and the recommender system takes this into account.
+
+Nevertheless, the New York Times is a private company and needs to make a profit. Thus, it is not surprising to read (Coenen, 2019, “How The New York Times is Experimenting with Recommendation Algorithms”, in <https://open.nytimes.com/how-the-new-york-times-is-experimenting-with-recommendation-algorithms-562f78624d26> ) that they are also interested in “increasing reader engagement” for which they have incorporated a simple linear model with contextual characteristics and other information like location, device used, and time of day accessing New York Times website.
+
+Moreover, the New York Times, like most newspapers, has a particular editorial perspective. Consequently, they also curate the front page, website and recommendations based on human inputs reflecting these editorial views (Yang, 2024, “How The New York Times incorporates editorial judgment in algorithms to curate its home page”, <https://www.niemanlab.org/2024/10/how-the-new-york-times-incorporates-editorial-judgment-in-algorithms-to-curate-its-home-page/> ))
+
+Considering these three connected but different objectives (catering to readers’ goals, maintaining readers’ attention/engagement and pursuing/promoting an editorial line) it seems it would make sense for New York Times to perform a scenario design for the organization. It may not be needed for readers’ goals given the way their recommender system deals with them, as explained below.
+
+**NYT Recommender System**
+
+The article by Spangher (2015) mentioned above clearly articulates the main objective of the system is to be customer/reader focused. In other words, the system is built with the intention to “personalizing the placement of articles on our apps and website — can help readers find information relevant to them, such as the right news at the right times, personalized supplements to major events and stories in their preferred multimedia format”. As explained in the article, this is done in three steps:
+
+- Classify articles based on their text.
+
+- Update the classification based on the reading patterns of the users of the website.
+
+- Understand readers’ interests (using their reading history).
+
+In an implicit fourth step, the readers receive the recommendation (albeit often indirectly by the layout of the home page or the design of the different sections). A couple of words on each step follows.
+
+The classification of articles according to their content is based on a word pattern recognition algorithm called “Latent Dirichlet Allocation”. It seems similar to, or at least based on, the type of sentiment analysis we discussed during Week 10. However, it is focused on connecting words to topics (i.e. the sections or groups of news appearing in the New York Times such as sports, movies technology, international affairs, etc.).
+
+While this step seems straightforward, the next one is not. In this step, the classification is adjusted according to who reads them. In other words, the New York Tines recommender system is not based only on the specific elements of the article but also on the “type” of readers who read them. This is done using a Collaborative Topic Modeling (CTM), a type of collaborative as described in chapter 9 of Mining Massive Datasets.
+
+The CTM algorithm works by iteratively adjusting the values used to classify the article based on the values of other already classified articles read by people who read the article being classified. This is an iterative process in which adjustments to the value of the classification of the article changes less and less in each iteration until the changes are very small but there is no information about how small these changes are  (the link to the article providing further information about this process led me to  a no-longer functioning page at Princeton: <https://www.cs.princeton.edu/~chongw/papers/WangBlei2011.pdf> ). An alternative based on Collaborative Poisson Factorization, which the author claims did not perform as well as the CTM in testing, was analyzed. However, no data are provided about these tests.
+
+For the third step, once the values for the articles are known, they could be averaged to get a score about readers’ interests (based on their reading history). However, this simplistic approach is not used for two reasons. One is that it cannot be assumed that readers actually read or liked an article they opened (i.e. that they “clicked”, which is what is actually measured by the New York Times) Secondly, focusing only on what readers have opened could prevent expanding their horizons to articles they might like even if they are outside of their “typical” reading history.
+
+This is done by only using a weight of 90% to articles opened by the reader and 10% for articles not opened. The presence of many unread articles allows for the average to be outside the boundaries of an average based only on “clicked” articles (whether a simple one or weighted in any way). The author calls this procedure a “back-off” average. Clearly, these weights are a bit arbitrarily. The author does not explain if and how alternative weights were explored.
+
+Nevertheless, actually, I have found this part of the algorithm as the most interesting aspect. Besides introducing a correction for mistaken clicks, it allows for what the author describes as serendipitous recommendations.  In the author’s words, it “leaves room for mistaken clicks or missed gems”.
+
+However, as mentioned above, the system described here has been updated (Yang, 2024). For example, an attempt has been made to include the editorial perspective, which has also been done in three steps: (1) collecting all eligible stories related to a specific topic or for the website or the front page (it is not clear but it seems the period is for the day); (2) Sorting these stories, which includes information about the readers (see below); and (3) “applying editorial guardrails and business rules to ensure the final output of stories meets our standards”, which are not explained in the article.
+
+The way readers’ information is incorporated is related to another modification mentioned above (Coenen, 2019). It uses “contextual bandits” (a link to a technical paper, Langford, 2007, [Contextual Bandits – Machine Learning (Theory)](https://hunch.net/?p=298) is provided in the article). Basically, this algorithm uses information about engagement with articles (e.g. click-through rate, there may be other metrics but they are not mentioned in the article) combined with characteristics of the reader. In particular, location (the state in the United States, I assume they also use country for the international edition) is mentioned and used in the example but other characteristics about readers are also available.
+
+**Potential improving options**
+
+Two possible types of modifications are presented for, potentially, improving the recommender system. First, some “technical” ones. For instance, when combining editorial perspectives, guardrails, business rules, etc., there may be various ways to summarize the data, some of which are probably qualitative. Good examples for constructing indices, which may include qualitative data and I have found in my work, albeit for social science and policy-making contexts, can be found in: <https://joint-research-centre.ec.europa.eu/scientific-activities/composite-indicators_en>. Some of them could be helpful here or at least could be tested.
+
+Also, other ways to classify the content of articles could be explored, such as cosine distance (“Amazon.com Recommendations: Item-to-Item Collaborative Filtering, Linden, Smith, and York, 2003, in IEEE INTERNET COMPUTING, it is described in Statquest, Cosine Similarity, Clearly Explained!!!, <https://www.youtube.com/watch?v=e9U0QAFbfLI> ) or Jaccard distance (from chapter 9 in Mining Massive Datasets). Additionally, readers could be clustered the way Amazon clusters customers, by segments made of customers with similar characteristics.
+
+The second type of recommendation is based not on this type of issues but on the content of the information. One such recommendation is to think of attempting (if it has not been done, which I would find surprising) a more granular description of location, for example by county or zip code. It is possible that this is being done (or at least had been tried) but by for proprietary or other reasons it was not mentioned in the article.
+
+Another issue, when describing readers, would be look into the interaction among their characteristics, This proposal goes beyond abandoning linearity or introducing segments and it stems from the literature on intersectionality when analyzing disparities and discrimination. It entails thinking about a more granular classification which is not to be picked up by a formula but the recognition that the interaction results in a “different category”.
